@@ -11,7 +11,7 @@ import random
 pygame.init()
 
 
-screen = pygame.display.set_mode((900, 700))
+screen = pygame.display.set_mode((1200, 600))
 screen.fill((245, 230, 220))
 clock = pygame.time.Clock()
 
