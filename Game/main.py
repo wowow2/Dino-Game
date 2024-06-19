@@ -5,11 +5,13 @@ date: June 15, 2024
 '''
 import pygame
 import sprites
-import math
+import random
 # Window
 
 pygame.init()
-screen = pygame.display.set_mode((1600, 900))
+
+
+screen = pygame.display.set_mode((900, 700))
 screen.fill((245, 230, 220))
 clock = pygame.time.Clock()
 
@@ -22,12 +24,12 @@ class Dinosaur:
         self.dino_jump = False
 
         self.step = 0
-        self.jump_speed = 9
+        self.jump_speed = 8
         self.image = sprites.dino_start
 
         self.dino_box = self.image.get_rect()
         self.dino_box.x = 100
-        self.dino_box.y = 650
+        self.dino_box.y = 450
     def update_dino(self, key_pressed):
         if self.dino_duck:
             self.duck()
@@ -53,27 +55,28 @@ class Dinosaur:
             self.dino_jump = False
 
     def duck(self):
-        print('hi')
         self.image = sprites.dino_duck[self.step // 5]
         self.dino_box = self.image.get_rect()
         self.dino_box.x = 100
-        self.dino_box.y = 683
+        self.dino_box.y = 483
         self.step += 1
 
     def run(self):
         self.image = sprites.dino_run[self.step // 5]
         self.dino_box = self.image.get_rect()
         self.dino_box.x = 100
-        self.dino_box.y = 650
+        self.dino_box.y = 450
         self.step += 1
     def jump(self):
         self.image = sprites.dino_jump
+
         if self.dino_jump:
             self.dino_box.y -= self.jump_speed * 5
-            self.jump_speed -= 1
-        if self.jump_speed <= -9:
+            self.jump_speed -= 0.8
+        if self.jump_speed <= -8:
             self.dino_jump = False
-            self.jump_speed = 9
+            self.jump_speed = 8
+
     def paint(self):
         screen.blit(self.image, (self.dino_box.x, self.dino_box.y))
 class Background:
@@ -81,7 +84,7 @@ class Background:
         self.image = sprites.track
         self.width = self.image.get_width()
         self.pos_x = 0
-        self.pos_y = 730
+        self.pos_y = 530
 
     def paint(self, game_speed):
         screen.blit(self.image, (self.pos_x, self.pos_y))
@@ -91,11 +94,18 @@ class Background:
         if self.pos_x <= -self.width:
             screen.blit(self.image, (self.width + self.pos_x, self.pos_y))
             self.pos_x = 0
+class Obstacle:
+    def __init__(self, image):
+        pass
+
+
+
 
 if __name__ == '__main__':
     running = True
     Dino = Dinosaur()
     Background = Background()
+    obstacles = []
 
     while running:
         screen.fill((245, 230, 220))
