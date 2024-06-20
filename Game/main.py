@@ -4,15 +4,18 @@ author: Abbas Rizvi
 date: June 15, 2024
 '''
 import pygame
+from poetry.console.commands import self
+
 import sprites
 import random
 # Window
 
 pygame.init()
 
-
+font = pygame.font.Font("freesansbold.ttf", 30)
 screen = pygame.display.set_mode((1200, 600))
 screen.fill((245, 230, 220))
+
 clock = pygame.time.Clock()
 
 
@@ -24,7 +27,7 @@ class Dinosaur:
         self.dino_jump = False
 
         self.step = 0
-        self.jump_speed = 8
+        self.jump_speed = 8.5
         self.image = sprites.dino_start
 
         self.dino_box = self.image.get_rect()
@@ -72,14 +75,17 @@ class Dinosaur:
 
         if self.dino_jump:
             self.dino_box.y -= self.jump_speed * 5
+            pygame.time.delay(2)
             self.jump_speed -= 0.8
-        if self.jump_speed <= -8:
+        if self.jump_speed <= -8.5:
             self.dino_jump = False
-            self.jump_speed = 8
+            self.jump_speed = 8.5
 
     def paint(self):
         screen.blit(self.image, (self.dino_box.x, self.dino_box.y))
-class Background:
+    def get_rect(self):
+        return self.image.get_rect()
+class Track:
     def __init__(self):
         self.image = sprites.track
         self.width = self.image.get_width()
@@ -94,18 +100,62 @@ class Background:
         if self.pos_x <= -self.width:
             screen.blit(self.image, (self.width + self.pos_x, self.pos_y))
             self.pos_x = 0
-class Obstacle:
-    def __init__(self, image):
-        pass
+class Cactus:
+    def __init__(self):
+        self.size = random.randint(0, 1)
+        self.group = random.randint(0,2)
 
+        if self.size == 0:
+            self.image = sprites.large_cactus[self.group]
+        elif self.size == 1:
+            self.image = sprites.small_cactus[self.group]
 
+        self.pos_x = 1200
+        self.rect = self.image.get_rect()
 
+    def paint(self, game_speed):
+        self.pos_x -= game_speed
+        if self.size == 0:
+            screen.blit(self.image, (self.pos_x, 445))
+            self.rect.topleft = (self.pos_x, 445)
+        else:
+            screen.blit(self.image, (self.pos_x, 469))
+            self.rect.topleft = (self.pos_x, 469)
+    def get_rect(self):
+        return self.image.get_rect()
+    def check_screen(self):
+        return self.pos_x < self.get_rect().width - 150
+class Bird:
+    def __init__(self):
+        self.image = sprites.bird[random.randint(0,1)]
+        self.pos_y = random.choice([300, 410])
+        self.pos_x = 1200
+        self.rect = self.image.get_rect()
+    def paint(self, game_speed):
+        self.pos_x -= game_speed
+        screen.blit(self.image, (self.pos_x, self.pos_y))
+        self.rect.topleft = (self.pos_x, self.pos_y)
+    def check_screen(self):
+        return self.pos_x < self.get_rect().width - 150
+    def get_rect(self):
+        return self.image.get_rect()
+def points(score, game_speed):
+    score += 1
+    if score % 100 == 0:
+        game_speed += 1
+    text = font.render('Score: '+str(score), True, (0, 0, 0))
+    screen.blit(text, (950,0))
 
-if __name__ == '__main__':
+    return score, game_speed
+def main():
     running = True
     Dino = Dinosaur()
-    Background = Background()
-    obstacles = []
+    Background = Track()
+    game_speed = 15
+    spawn_time = 0
+    score = 0
+    game_over = False
+    Obstacles = []
 
     while running:
         screen.fill((245, 230, 220))
@@ -113,13 +163,45 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+            if event.type == pygame.KEYDOWN and game_over:
+                if event.key == pygame.K_r:
+                    main()
+                elif event.key == pygame.K_q:
+                    exit()
 
         key_pressed = pygame.key.get_pressed()
 
-        Dino.paint()
-        Dino.update_dino(key_pressed)
+        if not game_over:
+            Dino.paint()
+            Dino.update_dino(key_pressed)
 
-        Background.paint(20)
+            Background.paint(game_speed)
+
+            if pygame.time.get_ticks() - spawn_time > random.randrange(17000, 22000) / game_speed:
+                if random.random() < 0.75:
+                    Obstacles.append(Cactus())
+                else:
+                    Obstacles.append(Bird())
+                spawn_time = pygame.time.get_ticks()
+
+            for obstacle in Obstacles[:]:
+                obstacle.paint(game_speed)
+                if Dino.dino_box.colliderect(obstacle.rect):
+                    game_over = True
+                if obstacle.check_screen():
+                    Obstacles.remove(obstacle)
+
+            score, game_speed = points(score, game_speed)
+
+        else:
+            game_over_text = font.render('You LOSE! Press R to Restart, Q to quit', True, (0, 0, 0))
+            screen.blit(game_over_text, (310, 300))
+            screen.blit(sprites.game_over, (400, 250))
 
         pygame.display.update()
         clock.tick(60)
+
+
+
+if __name__ == '__main__':
+    main()

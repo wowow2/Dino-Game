@@ -20,8 +20,6 @@ small_cactus = (pygame.image.load('../images/Cactus/SmallCactus1.png'),
 
 bird = (pygame.image.load('../images/Bird/Bird1.png'), pygame.image.load('../images/Bird/Bird2.png'))
 
-cloud = pygame.image.load('../images/Other/Cloud.png')
-
 track = pygame.image.load('../images/Other/Track.png')
 
-font = (0, 0, 0)
+game_over = pygame.image.load('../images/Other/GameOver.png')
