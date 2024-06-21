@@ -170,7 +170,19 @@ def points(score, game_speed):
     text = font.render('Score: '+str(score), True, (0, 0, 0))
     screen.blit(text, (950,0))
 
-    return score, game_speed
+    # save high score
+    with open('score.txt', 'r') as f:
+        high_score = f.readline()
+        if score > int(high_score):
+            high_score = score
+
+    with open('score.txt', 'w') as f:
+        f.write(str(high_score))
+
+    text = font.render('High score: ' + str(high_score), True, (0, 0, 0))
+    screen.blit(text, (0, 0))
+
+    return score, game_speed, high_score
 def main():
     running = True
     Dino = Dinosaur()
@@ -178,6 +190,7 @@ def main():
     game_speed = 15
     spawn_time = 0
     score = 0
+    high_score = 0
     game_over = False
     Obstacles = []
 
@@ -219,13 +232,19 @@ def main():
                 if obstacle.check_screen():
                     Obstacles.remove(obstacle)
 
-            score, game_speed = points(score, game_speed) # update score and game speed
+            score, game_speed, high_score = points(score, game_speed) # update score and game speed
 
         else:
             # game over screen
             game_over_text = font.render('You LOSE! Press R to Restart, Q to quit', True, (0, 0, 0))
             screen.blit(game_over_text, (310, 300))
             screen.blit(sprites.game_over, (400, 250))
+
+            text = font.render('Score: ' + str(score), True, (0, 0, 0))
+            screen.blit(text, (950, 0))
+
+            text = font.render('High score: ' + str(high_score), True, (0, 0, 0))
+            screen.blit(text, (0, 0))
 
         pygame.display.update()
         clock.tick(60)
