@@ -1,2 +1,4 @@
 # Dino-Game
-A bot to beat the dinosaur game + a remake of the game itself
+
+## How to Play
+Run main.py to play the game, space bar to jump, and down arrow to duck. Run bot.py to the run NEAT algorithm
