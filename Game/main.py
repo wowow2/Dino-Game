@@ -55,15 +55,15 @@ class Dinosaur:
             self.step = 0
 
         # handles changes in states of the dino
-        if key_pressed[pygame.K_SPACE] and not self.dino_jump:
+        if (key_pressed == 0) and not self.dino_jump:
             self.dino_duck = False
             self.dino_run = False
             self.dino_jump = True
-        elif key_pressed[pygame.K_DOWN] and not self.dino_jump:
+        elif (key_pressed == 1) and not self.dino_jump:
             self.dino_duck = True
             self.dino_run = False
             self.dino_jump = False
-        elif not (self.dino_jump or key_pressed[pygame.K_DOWN]):
+        elif not (self.dino_jump or (key_pressed == 1)):
             self.dino_duck = False
             self.dino_run = True
             self.dino_jump = False
@@ -183,6 +183,14 @@ def points(score, game_speed):
     screen.blit(text, (0, 0))
 
     return score, game_speed, high_score
+def convert_key(key_pressed):
+    if key_pressed[pygame.K_SPACE]:
+        return 0
+    elif key_pressed[pygame.K_DOWN]:
+        return 1
+    else:
+        return 99
+
 def main():
     running = True
     Dino = Dinosaur()
@@ -211,7 +219,7 @@ def main():
 
         if not game_over:
             Dino.paint()
-            Dino.update_dino(key_pressed)
+            Dino.update_dino(convert_key(key_pressed))
 
             Background.paint(game_speed)
 
