@@ -6,30 +6,40 @@ date: June 20, 2024
 import math
 from main import *
 import neat
+import os
+import pickle
+
 def distance(pos1, pos2):
     # distance between 2 points
     dx = abs(pos1[0] - pos2[0])
     dy = abs(pos1[1] - pos2[1])
     dist = math.sqrt(dx ** 2 + dy ** 2)
     return dist
-def run(config_file):
+def run(config_file, checkpoint_file = None):
     # set up neat
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
 
-    pop = neat.Population(config) # population count
+    if checkpoint_file and os.path.exists(checkpoint_file):
+        pop = neat.Checkpointer.restore_checkpoint(checkpoint_file)
+        pop.config.fitness_threshold = 1000
+    else:
+        pop = neat.Population(config)
+
     pop.add_reporter(neat.StdOutReporter(True))
     # stats
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
     # checkpoints
-    pop.add_reporter(neat.Checkpointer(500))
+    pop.add_reporter(neat.Checkpointer(10))
 
     winner = pop.run(eval_genomes, 10000) # 10000 is just a test number
-    with open('winner.txt', 'w') as f:
-        f.write(str(winner))
+    with open('winner.pkl', 'wb') as f:
+        pickle.dump(winner, f)
     print(winner)
+
+
 def eval_genomes(genomes, config):
     Nets = []
     Dinos = []
@@ -64,14 +74,17 @@ def eval_genomes(genomes, config):
         for i, Dino in enumerate(Dinos):
             if len(Obstacles) > 0:
                 obstacle = Obstacles[0]
+                is_bird = False
+                if obstacle.rect.y == 300 or obstacle.rect.y == 410:
+                    is_bird = True
                 # calculate distance between obstacle and dinosaur
                 dist = distance((Dino.dino_box.x, Dino.dino_box.y), (obstacle.pos_x, obstacle.rect.y))
                 # set inputs for neural net
                 inputs = (
-                    score,
                     dist,
                     obstacle.rect.y,
-                    game_speed
+                    game_speed,
+                    is_bird
                 )
                 output = Nets[i].activate(inputs) # activate neural net
 
@@ -109,6 +122,9 @@ def eval_genomes(genomes, config):
             genome.fitness += 0.1
 
 
+        screen.blit(font.render('Dinos: ' + str(len(Dinos)), True, (0, 0, 0)), (0, 40))
+
+
         pygame.display.update()
         clock.tick(60)
 
@@ -118,6 +134,6 @@ def eval_genomes(genomes, config):
 
 if __name__ == '__main__':
     config_path = 'config.txt'
-    run(config_path)
+    run(config_path, 'neat-checkpoint-359')
 
 
