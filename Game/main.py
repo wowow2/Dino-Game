@@ -225,7 +225,7 @@ def main():
 
             # as game speed goes up, more obstacles spawn
             if pygame.time.get_ticks() - spawn_time > random.randrange(17000, 22000) / game_speed:
-                if random.random() < 0.75:
+                if random.random() < 0.85:
                     Obstacles.append(Cactus())
                 else:
                     Obstacles.append(Bird())
@@ -253,6 +253,8 @@ def main():
 
             text = font.render('High score: ' + str(high_score), True, (0, 0, 0))
             screen.blit(text, (0, 0))
+
+
 
         pygame.display.update()
         clock.tick(60)

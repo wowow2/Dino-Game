@@ -9,6 +9,7 @@ import neat
 import os
 import pickle
 
+
 def distance(pos1, pos2):
     # distance between 2 points
     dx = abs(pos1[0] - pos2[0])
@@ -23,7 +24,6 @@ def run(config_file, checkpoint_file = None):
 
     if checkpoint_file and os.path.exists(checkpoint_file):
         pop = neat.Checkpointer.restore_checkpoint(checkpoint_file)
-        pop.config.fitness_threshold = 1000
     else:
         pop = neat.Population(config)
 
@@ -82,9 +82,10 @@ def eval_genomes(genomes, config):
                 # set inputs for neural net
                 inputs = (
                     dist,
+                    game_speed/dist,
                     obstacle.rect.y,
-                    game_speed,
                     is_bird
+
                 )
                 output = Nets[i].activate(inputs) # activate neural net
 
@@ -96,7 +97,7 @@ def eval_genomes(genomes, config):
 
         # as game speed goes up, more obstacles spawn
         if pygame.time.get_ticks() - spawn_time > random.randrange(17000, 22000) / game_speed:
-            if random.random() < 0.75:
+            if random.random() < 0.85:
                 Obstacles.append(Cactus())
             else:
                 Obstacles.append(Bird())
@@ -123,17 +124,13 @@ def eval_genomes(genomes, config):
 
 
         screen.blit(font.render('Dinos: ' + str(len(Dinos)), True, (0, 0, 0)), (0, 40))
-
+        screen.blit(font.render('Speed: ' + str(game_speed), True, (0, 0, 0)), (0, 80))
 
         pygame.display.update()
         clock.tick(60)
 
-
-
-
-
 if __name__ == '__main__':
     config_path = 'config.txt'
-    run(config_path, 'neat-checkpoint-359')
+    run(config_path, 'neat-checkpoint-69')
 
 
