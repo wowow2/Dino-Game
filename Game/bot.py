@@ -32,9 +32,9 @@ def run(config_file, checkpoint_file = None):
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
     # checkpoints
-    pop.add_reporter(neat.Checkpointer(10))
+    pop.add_reporter(neat.Checkpointer(100))
 
-    winner = pop.run(eval_genomes, 10000) # 10000 is just a test number
+    winner = pop.run(eval_genomes, 1000) # 10000 is just a test number
     with open('winner.pkl', 'wb') as f:
         pickle.dump(winner, f)
     print(winner)
@@ -131,6 +131,6 @@ def eval_genomes(genomes, config):
 
 if __name__ == '__main__':
     config_path = 'config.txt'
-    run(config_path, 'neat-checkpoint-69')
+    run(config_path, 'neat-checkpoint-1996')
 
 
